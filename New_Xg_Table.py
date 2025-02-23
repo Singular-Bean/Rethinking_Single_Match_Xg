@@ -111,17 +111,17 @@ def list_xg_from_shotmap(json_data, isHome):
 
 def leagueid():
     league = input("What league would you like to view the true table of? ")
-    leagueid = fetch_and_parse_json("https://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
+    leagueid = fetch_and_parse_json("http://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
     return leagueid
 def seasonid(leagueid):
     year = input("Which season would you like to view the true table of? ")
-    seasons = fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
+    seasons = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
     for i in range (0,len(seasons)):
         if seasons[i]['year'] == year:
             return seasons[i]['id']
 
 def teamid(name):
-    url = "https://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
+    url = "http://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
     data = fetch_and_parse_json(url)['results'][0]['entity']['id']
     return data
 
@@ -129,47 +129,48 @@ def match_list(seasonid, leagueid, round):
     full_list = []
     for p in range(0, int(round)):
         print("Loading round " + str(p+1) + "...")
-        roundmatches = fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/events/round/" + str(p+1))["events"]
+        roundmatches = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/events/round/" + str(p+1))["events"]
         for i in range(0, len(roundmatches)):
             match = roundmatches[i]
             matchid = match["id"]
-            hometeam = match["homeTeam"]["name"]
-            awayteam = match["awayTeam"]["name"]
+            if fetch_and_parse_json(f"https://www.sofascore.com/api/v1/event/{matchid}")['event']['status']['code'] == 100:
+                hometeam = match["homeTeam"]["name"]
+                awayteam = match["awayTeam"]["name"]
 
 
-            homexg = list_xg_from_shotmap(
-                fetch_and_parse_json("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), True)
+                homexg = list_xg_from_shotmap(
+                    fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), True)
 
-            x = 1
-            for j in homexg:
-                x = x * (1 - j)
+                x = 1
+                for j in homexg:
+                    x = x * (1 - j)
 
-            homegoalprobs = event_probabilities2(homexg)
+                homegoalprobs = event_probabilities2(homexg)
 
-            homegoalprobs.insert(0, x)
+                homegoalprobs.insert(0, x)
 
-            awayxg = list_xg_from_shotmap(
-                fetch_and_parse_json("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), False)
+                awayxg = list_xg_from_shotmap(
+                    fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), False)
 
-            y = 1
-            for j in awayxg:
-                y = y * (1 - j)
+                y = 1
+                for j in awayxg:
+                    y = y * (1 - j)
 
-            awaygoalprobs = event_probabilities2(awayxg)
+                awaygoalprobs = event_probabilities2(awayxg)
 
-            awaygoalprobs.insert(0, y)
+                awaygoalprobs.insert(0, y)
 
-            emptytuple = ()
+                emptytuple = ()
 
-            homename = str(hometeam)
+                homename = str(hometeam)
 
-            homescore = most_likely(homegoalprobs, awaygoalprobs)[0]
+                homescore = most_likely(homegoalprobs, awaygoalprobs)[0]
 
-            awayscore = most_likely(homegoalprobs, awaygoalprobs)[1]
+                awayscore = most_likely(homegoalprobs, awaygoalprobs)[1]
 
-            awayname = str(awayteam)
+                awayname = str(awayteam)
 
-            full_list.append((homename, [homescore, awayscore], awayname, "Round " + str(p+1)))
+                full_list.append((homename, [homescore, awayscore], awayname, "Round " + str(p+1)))
     return full_list
 
 
