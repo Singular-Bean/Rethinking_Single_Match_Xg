@@ -40,17 +40,17 @@ def list_xg_from_shotmap(json_data, isHome):
 
 def leagueid():
     league = input("What league would you like to view the shot xgs of? ")
-    leagueid = fetch_and_parse_json("https://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
+    leagueid = fetch_and_parse_json("http://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
     return leagueid
 def seasonid(leagueid):
     options = []
     src = []
-    seasons = fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
+    seasons = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
     for t in range (0,len(seasons)):
-        add_website_if_valid("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasons[t]['id']) + "/events/round/1", src)
+        add_website_if_valid("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasons[t]['id']) + "/events/round/1", src)
     for i in range (0,len(src)):
         id = seasons[i]['id']
-        if 'hasXg' in fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(id) + "/events/round/1")['events'][0]:
+        if 'hasXg' in fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(id) + "/events/round/1")['events'][0]:
             options.append(seasons[i]['year'])
             print(str(i+1) + ". " + options[len(options)-1])
     year = int(input("Which season number would you like to view the true table of? "))
@@ -59,14 +59,14 @@ def seasonid(leagueid):
             return seasons[l]['id']
 
 def teamid(name):
-    url = "https://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
+    url = "http://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
     data = fetch_and_parse_json(url)['results'][0]['entity']['id']
     return data
 
 def match_list(seasonid, leagueid, round):
     full_list = []
     for p in range(0, int(round)):
-        roundmatches = fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/events/round/" + str(p+1))["events"]
+        roundmatches = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/events/round/" + str(p+1))["events"]
         for i in range(0, len(roundmatches)):
             match = roundmatches[i]
             matchid = match["id"]
@@ -75,16 +75,16 @@ def match_list(seasonid, leagueid, round):
 
 
 def roundcalc(leagueid, seasonid):
-    teamnum = len(fetch_and_parse_json("https://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/standings/total")['standings'][0]['rows'])
+    teamnum = len(fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/season/" + str(seasonid) + "/standings/total")['standings'][0]['rows'])
     return (teamnum - 1) * 2
 
 def shotmap_data(matchid):
-    event_ = fetch_and_parse_json("https://www.sofascore.com/api/v1/event/" + str(matchid))['event']
+    event_ = fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid))['event']
     if event_.get('status') != None:
-        if event_['status']['type'] != 'postponed' and check_website("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"):
-            return fetch_and_parse_json("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap")['shotmap']
-    elif check_website("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"):
-        return fetch_and_parse_json("https://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap")['shotmap']
+        if event_['status']['type'] != 'postponed' and check_website("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"):
+            return fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap")['shotmap']
+    elif check_website("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"):
+        return fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap")['shotmap']
 
 def nonround(number, places):
     if number != None:
