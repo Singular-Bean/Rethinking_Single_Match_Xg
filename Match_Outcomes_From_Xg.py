@@ -74,9 +74,9 @@ def calculate_scorelines(team1_probs, team2_probs, hometm, awaytm):
     away_win_prob = sum(prob for (scoreline, prob) in scorelines if scoreline[0] < scoreline[1])
 
     # Display the probabilities for each scenario
-    print(f"Probability of " + hometm + f" winning = {home_win_prob*100:.2f}%")
+    print(f"Probability of {hometm} winning = {home_win_prob*100:.2f}%")
     print(f"Probability of a draw = {draw_prob*100:.2f}%")
-    print(f"Probability of " + awaytm + f" winning = {away_win_prob*100:.2f}%")
+    print(f"Probability of {awaytm} winning = {away_win_prob*100:.2f}%")
 
 
 def most_likely(team1_probs, team2_probs):
@@ -95,8 +95,6 @@ def most_likely(team1_probs, team2_probs):
     return scorelines[0][0]
 
 
-##DADS
-
 def fetch_and_parse_json(url):
     response = requests.get(url)
     response.raise_for_status(
@@ -109,19 +107,23 @@ def list_xg_from_shotmap(json_data, isHome):
     return [item['xg'] for item in json_data['shotmap'] if
             'xg' in item and item['isHome'] == isHome and item["situation"] != "shootout"]
 
+
 def leagueid():
     league = input("What league would you like to view the true table of? ")
-    leagueid = fetch_and_parse_json("http://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
+    leagueid = fetch_and_parse_json(f"http://www.sofascore.com/api/v1/search/unique-tournaments?q={league}&page=0")['results'][0]['entity']['id']
     return leagueid
+
+
 def seasonid(leagueid):
     year = input("Which season would you like to view the true table of? ")
-    seasons = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
+    seasons = fetch_and_parse_json(f"http://www.sofascore.com/api/v1/unique-tournament/{leagueid}/seasons")['seasons']
     for i in range (0,len(seasons)):
         if seasons[i]['year'] == year:
             return seasons[i]['id']
 
+
 def teamid(name):
-    url = "http://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
+    url = f"http://www.sofascore.com/api/v1/search/teams?q={name}&page=0"
     data = fetch_and_parse_json(url)['results'][0]['entity']['id']
     return data
 
@@ -130,7 +132,7 @@ hometeam = input("What is the name of the home team? ")
 
 awayteam = input("What is the name of the away team? ")
 
-matchesurl = "http://www.sofascore.com/api/v1/search/events?q=" + hometeam + "%20" + awayteam + "&page=0"
+matchesurl = f"http://www.sofascore.com/api/v1/search/events?q={hometeam}%20{awayteam}&page=0"
 clashlist = fetch_and_parse_json(matchesurl)
 
 matches = []
@@ -167,7 +169,7 @@ for i in range(len(clashlist["results"])):
         matchid = entity["id"]
 
 homexg = list_xg_from_shotmap(
-    fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), True)
+    fetch_and_parse_json(f"http://www.sofascore.com/api/v1/event/{matchid}/shotmap"), True)
 
 x = 1
 for j in homexg:
@@ -178,7 +180,7 @@ homegoalprobs = event_probabilities2(homexg)
 homegoalprobs.insert(0, x)
 
 awayxg = list_xg_from_shotmap(
-    fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid) + "/shotmap"), False)
+    fetch_and_parse_json(f"http://www.sofascore.com/api/v1/event/{matchid}/shotmap"), False)
 
 y = 1
 for j in awayxg:
@@ -188,8 +190,8 @@ awaygoalprobs = event_probabilities2(awayxg)
 
 awaygoalprobs.insert(0, y)
 
-homefull = fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid))["event"]["homeTeam"]["name"]
+homefull = fetch_and_parse_json(f"http://www.sofascore.com/api/v1/event/{matchid}")["event"]["homeTeam"]["name"]
 
-awayfull = fetch_and_parse_json("http://www.sofascore.com/api/v1/event/" + str(matchid))["event"]["awayTeam"]["name"]
+awayfull = fetch_and_parse_json(f"http://www.sofascore.com/api/v1/event/{matchid}")["event"]["awayTeam"]["name"]
 
 calculate_scorelines(homegoalprobs, awaygoalprobs, homefull, awayfull)

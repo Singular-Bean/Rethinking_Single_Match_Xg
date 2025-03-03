@@ -1,4 +1,3 @@
-from datetime import datetime
 import numpy as np
 import requests
 from itertools import combinations
@@ -95,8 +94,6 @@ def most_likely(team1_probs, team2_probs):
     return scorelines[0][0]
 
 
-##DADS
-
 def fetch_and_parse_json(url):
     response = requests.get(url)
     response.raise_for_status(
@@ -109,10 +106,13 @@ def list_xg_from_shotmap(json_data, isHome):
     return [item['xg'] for item in json_data['shotmap'] if
             'xg' in item and item['isHome'] == isHome and item["situation"] != "shootout"]
 
+
 def leagueid():
     league = input("What league would you like to view the true table of? ")
     leagueid = fetch_and_parse_json("http://www.sofascore.com/api/v1/search/unique-tournaments?q=" + league + "&page=0")['results'][0]['entity']['id']
     return leagueid
+
+
 def seasonid(leagueid):
     year = input("Which season would you like to view the true table of? ")
     seasons = fetch_and_parse_json("http://www.sofascore.com/api/v1/unique-tournament/" + str(leagueid) + "/seasons")['seasons']
@@ -120,10 +120,12 @@ def seasonid(leagueid):
         if seasons[i]['year'] == year:
             return seasons[i]['id']
 
+
 def teamid(name):
     url = "http://www.sofascore.com/api/v1/search/teams?q=" + name + "&page=0"
     data = fetch_and_parse_json(url)['results'][0]['entity']['id']
     return data
+
 
 def match_list(seasonid, leagueid, round):
     full_list = []
@@ -174,8 +176,6 @@ def match_list(seasonid, leagueid, round):
     return full_list
 
 
-##print(str(homefull) + " [" + str(most_likely(homegoalprobs, awaygoalprobs)[0]) + ", " + str(most_likely(homegoalprobs, awaygoalprobs)[1]) + "] " + str(awayfull))
-
 def create_league_table(matches):
     # Initialize a dictionary to store team statistics
     league_table = {}
@@ -218,15 +218,6 @@ def create_league_table(matches):
     print(f"{'Team':<22} {'Points':<6} {'GD':<4} {'GS':<4} {'GP':<4}")
     for team, stats in sorted_teams:
         print(f"{team:<22} {stats['points']:<6} {stats['goal_difference']:<4} {stats['goals_scored']:<4} {stats['games_played']:<4}")
-
-# Example usage
-matches = [
-    ("Burnley", [1, 2], "Arsenal", "Round 1"),
-    ("Chelsea", [3, 1], "Liverpool", "Round 1"),
-    ("Burnley", [0, 0], "Chelsea", "Round 2"),
-    ("Arsenal", [2, 1], "Liverpool", "Round 2")
-]
-
 
 
 lgid = leagueid()
