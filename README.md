@@ -3,9 +3,26 @@
 Program which takes the shots from a match and shows the match outcome probabilities.
 
 Based on the idea that if you're looking at a stats sheet for a game, expected goals isn't a very good
-way of telling you what happened in a game. This is because two teams can both have an xG of 1.0 but
-if one team has 20 shots with 0.05 xG each, and the other team has 2 shots with 0.5 xG each, the result
-is most likely going to be 0-2.
+way of telling you what happened in a game. Even if two teams finish with an xG of 1.0, the 
+distribution of that xG can make a big difference. Consider two scenarios:
+
+ - Team A: 20 shots, each with an xG of 0.05
+ - Team B: 2 shots, each with an xG of 0.5
+
+Although both teams have a total xG of 1.0, each shot can be thought of as an independent event with a 
+conversion probability equal to its xG.
+
+
+For Team A, the chance of missing a single shot is 1 – 0.05 = 0.95. The probability of missing all 20 
+shots is 0.95²⁰ ≈ 35.8%, meaning they have about a 64.2% chance of scoring at least one goal.
+
+For Team B, the chance of missing a single shot is 1 – 0.5 = 0.5. Missing both shots happens with 
+probability 0.5² = 25%, so they have a 75% chance of scoring at least once.
+
+With 2 high-quality shots, the outcomes (0, 1, or 2 goals) are more tightly clustered around the 
+expected result. In contrast, 20 low-quality shots introduce greater variability and uncertainty, 
+which means the team might not capitalize on their chances even though the total xG is the same. This
+is the principle that this program is based on.
 
 The program first asks the user to input the names of the home and away teams, and then presents a list
 of those games where the expected goals statistics are available. The user can then select a game to use.
